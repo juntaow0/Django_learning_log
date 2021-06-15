@@ -1,0 +1,15 @@
+<style>
+    a {
+        text-decoration:none;
+        color: black;
+        margin-right:15px;
+    }
+</style>
+
+
+<h1>
+  <a href="{% url 'learning_logs:index' %}">Learning Log Home Page</a>
+  <a href="{% url 'learning_logs:topics' %}">Topics</a>
+</h1>
+
+{% block content %}{% endblock content%}
