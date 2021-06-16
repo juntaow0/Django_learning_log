@@ -1,3 +1,5 @@
+from decouple import config
+
 """
 Django settings for learning_log project.
 
@@ -20,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5^4j@&05kkmqpd^i=1hhy@o2stpg69)a9budjf$ir=g!o5k4&0'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -128,3 +130,6 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# my settings
+LOGIN_URL = 'users:login'

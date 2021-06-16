@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from .models import Entry, Topic
 from .forms import EntryForm, TopicForm
 
@@ -6,19 +8,25 @@ def index(request):
     """the homepage for learning log"""
     return render(request, 'learning_logs/index.html')
 
+@login_required
 def topics(request):
     """show all topics"""
-    topics = Topic.objects.order_by('date_added')
+    topics = Topic.objects.filter(owner=request.user).order_by('date_added')
     context = {'topics':topics}
     return render(request, 'learning_logs/topics.html',context)
 
+@login_required
 def topic(request, topic_id):
     """show a single topic and all its entries"""
     topic = Topic.objects.get(id=topic_id)
+    # make sure the topic belongs to a current user
+    if topic.owner!=request.user:
+        raise Http404
     entries = topic.entry_set.order_by('-date_added')
     context = {'topic':topic, 'entries':entries}
     return render(request, 'learning_logs/topic.html', context)
 
+@login_required
 def new_topic(request):
     """add a new topic for user"""
     if request.method!='POST':
@@ -28,13 +36,16 @@ def new_topic(request):
         # process data
         topic_form = TopicForm(data=request.POST)
         if topic_form.is_valid():
-            topic_form.save()
+            new_topic = topic_form.save(commit=False)
+            new_topic.owner = request.user
+            new_topic.save()
             return redirect('learning_logs:topics')
 
     # display a blank or invalid form
     context = {'form':topic_form}
     return render(request, 'learning_logs/new_topic.html', context)
 
+@login_required
 def new_entry(request, topic_id):
     """add a new entry to a given topic"""
     topic = Topic.objects.get(id=topic_id)
@@ -52,10 +63,13 @@ def new_entry(request, topic_id):
     context = {'topic':topic, 'form':entry_form}
     return render(request,'learning_logs/new_entry.html', context)
 
+@login_required
 def edit_entry(request, entry_id):
     """edit an entry"""
     entry = Entry.objects.get(id=entry_id)
     topic = entry.topic
+    if topic.owner!=request.user:
+        raise Http404
     if request.method!='POST':
         form  = EntryForm(instance=entry)
     else:
