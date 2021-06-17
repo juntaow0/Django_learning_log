@@ -133,3 +133,6 @@ dmypy.json
 
 # hide Django key
 .env
+
+ll_env/
+*.sqlite3
